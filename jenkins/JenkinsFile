@@ -19,8 +19,17 @@ pipeline {
                         # Create cache directories
                         mkdir -p "$GOCACHE" "$GOMODCACHE"
 
-                        # Run the tests
+                        # Run the backend tests
                         go test -v ./... 2>&1 | go-junit-report > test-results.xml
+
+                        # Run coverage check
+                        go test -coverprofile=coverage.out -covermode=atomic ./...
+
+                        # Generate the coverage report
+                        go tool cover -html=coverage.out -o coverage.html
+
+                        mkdir -p reports
+                        mv coverage.html reports/
                     '''
                 }
             }
@@ -28,6 +37,11 @@ pipeline {
             post {
                 always {
                     junit 'bugtracker-backend/test-results.xml'
+                    publishHTML target: [
+                        reportDir: 'bugtracker-backend/reports',
+                        reportFiles: 'coverage.html',
+                        reportName: 'Backend Coverage Report'
+                    ]
                 }
             }
         }
