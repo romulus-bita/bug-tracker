@@ -3,7 +3,7 @@ pipeline {
 
     stages {
         stage('Execute Unit Tests') {
-            parellel {
+            parallel {
                 stage('Unit Tests - Backend') {
                     agent {
                         docker {
